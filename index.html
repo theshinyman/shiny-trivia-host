@@ -7,60 +7,68 @@
 <title>Beauty in the Beach Trivia Night</title>
 
 <style>
-
 body{
-    font-family:Arial,sans-serif;
-    text-align:center;
-    margin:0;
-    padding:15px;
-    transition:background-color 0.3s;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 0;
+    padding: 10px;
+    background: #A8E6E6;
+    color: #222;
 }
 
 h1{
-    margin:5px 0;
-    font-size:42px;
+    margin: 5px 0;
+    font-size: 30px;
+    white-space: nowrap;
 }
 
 h2{
-    margin:0 0 20px 0;
-    font-size:28px;
-    color:#444;
+    margin: 0 0 15px 0;
+    font-size: 20px;
+    color: #444;
 }
 
 .preset-row{
-    margin:8px 0;
+    margin: 6px 0;
 }
 
 button{
-    font-size:22px;
-    padding:12px 18px;
-    margin:4px;
-    min-width:90px;
-    cursor:pointer;
+    font-size: 18px;
+    padding: 10px 14px;
+    margin: 3px;
+    min-width: 75px;
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    background: white;
+    color: #222;
+}
+
+button:hover{
+    opacity: 0.9;
 }
 
 #timer{
-    font-size:120px;
-    font-weight:bold;
-    margin:20px 0;
+    font-size: 90px;
+    font-weight: bold;
+    margin: 15px 0;
+    transition: color 0.15s;
 }
 
 #message{
-    font-size:42px;
-    font-weight:bold;
-    height:50px;
-    margin:15px 0;
+    font-size: 32px;
+    font-weight: bold;
+    height: 45px;
+    margin: 10px 0;
 }
 
-.flash{
-    background:red;
-    color:white;
+.timer-warning{
+    color: #FFD700;
 }
 
-.warning{
-    background:#ffcc00;
+.timer-red{
+    color: red;
 }
-
 </style>
 </head>
 
@@ -70,17 +78,17 @@ button{
 <h2>Trivia Night</h2>
 
 <div class="preset-row">
-<button onclick="startPreset(15)">15s</button>
-<button onclick="startPreset(30)">30s</button>
-<button onclick="startPreset(45)">45s</button>
-<button onclick="startPreset(60)">60s</button>
+    <button onclick="startPreset(15)">15s</button>
+    <button onclick="startPreset(30)">30s</button>
+    <button onclick="startPreset(45)">45s</button>
+    <button onclick="startPreset(60)">60s</button>
 </div>
 
 <div class="preset-row">
-<button onclick="startPreset(90)">90s</button>
-<button onclick="startPreset(120)">2m</button>
-<button onclick="startPreset(180)">3m</button>
-<button onclick="startPreset(300)">5m</button>
+    <button onclick="startPreset(90)">90s</button>
+    <button onclick="startPreset(120)">2m</button>
+    <button onclick="startPreset(180)">3m</button>
+    <button onclick="startPreset(300)">5m</button>
 </div>
 
 <div id="timer">1:00</div>
@@ -88,16 +96,16 @@ button{
 <div id="message"></div>
 
 <div>
-<button id="pauseBtn" onclick="togglePause()">Pause</button>
-<button onclick="resetTimer()">Reset</button>
+    <button id="pauseBtn" onclick="togglePause()">Pause</button>
+    <button onclick="resetTimer()">Reset</button>
 </div>
 
 <script>
-
 let time = 60;
 let defaultTime = 60;
 let timerInterval = null;
 let paused = false;
+let flashState = false;
 
 function formatTime(seconds){
     const mins = Math.floor(seconds / 60);
@@ -105,30 +113,46 @@ function formatTime(seconds){
     return mins + ":" + String(secs).padStart(2,"0");
 }
 
-function updateDisplay(){
+function beep(freq, duration){
+    try{
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
 
-    if(time > 0){
-        document.getElementById("timer").innerHTML =
-            formatTime(time);
-    }
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.frequency.value = freq;
+        osc.type = "sine";
+        gain.gain.value = 0.15;
+
+        osc.start();
+
+        setTimeout(() => {
+            osc.stop();
+            ctx.close();
+        }, duration);
+    }catch(err){}
+}
+
+function updateDisplay(){
+    document.getElementById("timer").innerHTML =
+        formatTime(Math.max(time,0));
 }
 
 function startPreset(seconds){
-
     clearInterval(timerInterval);
 
     time = seconds;
     defaultTime = seconds;
     paused = false;
+    flashState = false;
 
-    document.body.classList.remove("flash");
-    document.body.classList.remove("warning");
+    document.getElementById("timer").classList.remove("timer-warning");
+    document.getElementById("timer").classList.remove("timer-red");
 
-    document.getElementById("pauseBtn").innerHTML =
-        "Pause";
-
-    document.getElementById("message").innerHTML =
-        "";
+    document.getElementById("message").innerHTML = "";
+    document.getElementById("pauseBtn").innerHTML = "Pause";
 
     updateDisplay();
 
@@ -136,40 +160,42 @@ function startPreset(seconds){
 }
 
 function runTimer(){
-
     if(paused) return;
 
     time--;
 
-    if(time === 15){
+    const timerElement = document.getElementById("timer");
 
-        document.body.classList.add("warning");
+    if(time <= 10 && time >= 1){
 
-        document.getElementById("message").innerHTML =
-            "15 SECOND WARNING";
-    }
+        if(time >= 4){
+            beep(800,100);
+        }else{
+            beep(1200,200);
+        }
 
-    if(time <= 10 && time > 0){
+        document.getElementById("message").innerHTML = time;
 
-        document.body.classList.remove("warning");
+        flashState = !flashState;
 
-        document.getElementById("message").innerHTML =
-            time;
-
-        document.body.classList.toggle("flash");
+        if(flashState){
+            timerElement.classList.add("timer-warning");
+        }else{
+            timerElement.classList.remove("timer-warning");
+        }
     }
 
     if(time <= 0){
 
         clearInterval(timerInterval);
 
-        document.body.classList.remove("flash");
+        timerElement.classList.remove("timer-warning");
+        timerElement.classList.add("timer-red");
 
-        document.getElementById("message").innerHTML =
-            "TIME'S UP!";
+        beep(300,1000);
 
-        document.getElementById("timer").innerHTML =
-            "0:00";
+        document.getElementById("timer").innerHTML = "0:00";
+        document.getElementById("message").innerHTML = "TIME'S UP!";
 
         return;
     }
@@ -178,27 +204,22 @@ function runTimer(){
 }
 
 function togglePause(){
-
     paused = !paused;
-
     document.getElementById("pauseBtn").innerHTML =
         paused ? "Resume" : "Pause";
 }
 
 function resetTimer(){
-
     clearInterval(timerInterval);
 
     paused = false;
+    flashState = false;
 
-    document.body.classList.remove("flash");
-    document.body.classList.remove("warning");
+    document.getElementById("timer").classList.remove("timer-warning");
+    document.getElementById("timer").classList.remove("timer-red");
 
-    document.getElementById("pauseBtn").innerHTML =
-        "Pause";
-
-    document.getElementById("message").innerHTML =
-        "";
+    document.getElementById("message").innerHTML = "";
+    document.getElementById("pauseBtn").innerHTML = "Pause";
 
     time = defaultTime;
 
@@ -206,7 +227,6 @@ function resetTimer(){
 }
 
 updateDisplay();
-
 </script>
 
 </body>
