@@ -7,36 +7,59 @@
 <title>Brian's Trivia Host</title>
 
 <style>
+
 body{
-font-family:Arial,sans-serif;
-text-align:center;
-padding:20px;
+    font-family:Arial,sans-serif;
+    text-align:center;
+    margin:0;
+    padding:10px;
+    transition:background-color .3s;
 }
 
 h1{
-font-size:48px;
+    margin:5px;
+    font-size:28px;
 }
 
 #timer{
-font-size:120px;
-font-weight:bold;
-margin:40px 0;
+    font-size:100px;
+    font-weight:bold;
+    margin:20px 0;
 }
 
 button{
-font-size:24px;
-padding:20px;
-margin:8px;
-min-width:120px;
+    font-size:18px;
+    padding:10px 14px;
+    margin:4px;
+    min-width:70px;
 }
 
 #message{
-font-size:36px;
-font-weight:bold;
-color:red;
-height:50px;
-margin:20px;
+    font-size:28px;
+    font-weight:bold;
+    height:40px;
+    margin:10px;
 }
+
+.warning{
+    background-color:#ffb347;
+}
+
+.flashRed{
+    background-color:red;
+    color:white;
+}
+
+.flashWhite{
+    background-color:white;
+    color:black;
+}
+
+.timesup{
+    background-color:red;
+    color:white;
+}
+
 </style>
 </head>
 
@@ -47,9 +70,6 @@ margin:20px;
 <div>
 <button onclick="startPreset(15)">15s</button>
 <button onclick="startPreset(30)">30s</button>
-</div>
-
-<div>
 <button onclick="startPreset(45)">45s</button>
 <button onclick="startPreset(60)">60s</button>
 </div>
@@ -57,9 +77,6 @@ margin:20px;
 <div>
 <button onclick="startPreset(90)">90s</button>
 <button onclick="startPreset(120)">2m</button>
-</div>
-
-<div>
 <button onclick="startPreset(180)">3m</button>
 <button onclick="startPreset(300)">5m</button>
 </div>
@@ -79,69 +96,16 @@ let time=60;
 let defaultTime=60;
 let interval=null;
 let paused=false;
+let flashState=false;
 
-function formatTime(seconds){
-let m=Math.floor(seconds/60);
-let s=seconds%60;
-return m+":" + String(s).padStart(2,"0");
-}
+function beep(freq,duration){
 
-function updateDisplay(){
-document.getElementById("timer").innerText=formatTime(time);
-}
+    try{
 
-function startPreset(seconds){
-clearInterval(interval);
-defaultTime=seconds;
-time=seconds;
-paused=false;
-document.getElementById("pauseBtn").innerText="Pause";
-document.getElementById("message").innerText="";
-updateDisplay();
+        const ctx =
+        new(window.AudioContext||window.webkitAudioContext)();
 
-interval=setInterval(function(){
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
 
-if(paused)return;
-
-time--;
-
-if(time===15){
-document.getElementById("message").innerText="15 SECOND WARNING";
-}
-
-if(time<=10 && time>0){
-document.getElementById("message").innerText=time;
-}
-
-if(time<=0){
-clearInterval(interval);
-document.getElementById("message").innerText="TIME'S UP";
-time=0;
-}
-
-updateDisplay();
-
-},1000);
-}
-
-function togglePause(){
-paused=!paused;
-document.getElementById("pauseBtn").innerText=
-paused ? "Resume" : "Pause";
-}
-
-function resetTimer(){
-clearInterval(interval);
-time=defaultTime;
-paused=false;
-document.getElementById("pauseBtn").innerText="Pause";
-document.getElementById("message").innerText="";
-updateDisplay();
-}
-
-updateDisplay();
-
-</script>
-
-</body>
-</html>
+        osc
