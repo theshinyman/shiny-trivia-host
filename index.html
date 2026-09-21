@@ -7,47 +7,90 @@
 <title>Brian's Trivia Host</title>
 
 <style>
+
 body{
-    font-family:Arial,sans-serif;
-    text-align:center;
-    padding:20px;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 20px;
 }
 
 h1{
-    margin-bottom:20px;
+    margin-bottom: 20px;
 }
 
 #timer{
-    font-size:80px;
-    margin:30px;
+    font-size: 90px;
+    margin: 30px;
+    font-weight: bold;
 }
 
 button{
-    font-size:20px;
-    padding:15px 25px;
-    margin:10px;
+    font-size: 20px;
+    padding: 15px 20px;
+    margin: 8px;
+    min-width: 110px;
 }
+
+.controls{
+    margin-top: 20px;
+}
+
+.presets{
+    margin-bottom: 25px;
+}
+
 </style>
 </head>
 
 <body>
 
-<h1>Shiny Trivia Host</h1>
+<h1>Brian's Trivia Host</h1>
 
-<div id="timer">60</div>
+<div class="presets">
+    <button onclick="setTime(15)">15 Sec</button>
+    <button onclick="setTime(30)">30 Sec</button>
+    <button onclick="setTime(60)">60 Sec</button>
+    <button onclick="setTime(90)">90 Sec</button>
+    <button onclick="setTime(120)">2 Min</button>
+</div>
 
-<button onclick="startTimer()">Start</button>
-<button onclick="pauseTimer()">Pause</button>
-<button onclick="resetTimer()">Reset</button>
+<div id="timer">1:00</div>
+
+<div class="controls">
+    <button onclick="startTimer()">Start</button>
+    <button onclick="pauseTimer()">Pause</button>
+    <button onclick="resetTimer()">Reset</button>
+</div>
 
 <script>
 
 let time = 60;
+let defaultTime = 60;
 let interval = null;
 let paused = true;
 
 function updateDisplay(){
-    document.getElementById("timer").innerText = time;
+
+    let minutes = Math.floor(time / 60);
+    let seconds = time % 60;
+
+    if(seconds < 10){
+        seconds = "0" + seconds;
+    }
+
+    document.getElementById("timer").innerText =
+        minutes + ":" + seconds;
+}
+
+function setTime(seconds){
+
+    clearInterval(interval);
+
+    paused = true;
+    time = seconds;
+    defaultTime = seconds;
+
+    updateDisplay();
 }
 
 function startTimer(){
@@ -65,8 +108,11 @@ function startTimer(){
         updateDisplay();
 
         if(time <= 0){
+
             clearInterval(interval);
+
             paused = true;
+
             alert("Time's Up!");
         }
 
@@ -74,48 +120,24 @@ function startTimer(){
 }
 
 function pauseTimer(){
+
     clearInterval(interval);
+
     paused = true;
 }
 
 function resetTimer(){
+
     clearInterval(interval);
+
     paused = true;
-    time = 60;
+
+    time = defaultTime;
+
     updateDisplay();
 }
 
 updateDisplay();
-
-</script>
-
-</body>
-</html>
-<script>
-
-let time=60;
-let interval;
-
-function startTimer(){
-    clearInterval(interval);
-
-    interval=setInterval(()=>{
-        time--;
-        document.getElementById("timer").innerText=time;
-
-        if(time<=0){
-            clearInterval(interval);
-            alert("Time's Up!");
-        }
-
-    },1000);
-}
-
-function resetTimer(){
-    clearInterval(interval);
-    time=60;
-    document.getElementById("timer").innerText=time;
-}
 
 </script>
 
