@@ -2,43 +2,54 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Brian's Trivia Host</title>
 
 <style>
-
 body{
-    font-family: Arial, sans-serif;
-    text-align: center;
-    padding: 20px;
+    font-family:Arial,sans-serif;
+    text-align:center;
+    padding:20px;
 }
 
 h1{
-    margin-bottom: 20px;
+    margin-bottom:30px;
 }
 
 #timer{
-    font-size: 90px;
-    margin: 30px;
-    font-weight: bold;
+    font-size:120px;
+    margin:30px;
+    font-weight:bold;
+}
+
+.warning{
+    color:orange;
+}
+
+.danger{
+    color:red;
+}
+
+.flash{
+    animation:flash 1s infinite;
+}
+
+@keyframes flash{
+    50%{
+        opacity:0.3;
+    }
 }
 
 button{
-    font-size: 20px;
-    padding: 15px 20px;
-    margin: 8px;
-    min-width: 110px;
+    font-size:22px;
+    padding:15px 25px;
+    margin:8px;
 }
 
-.controls{
-    margin-top: 20px;
+.preset-row{
+    margin-bottom:20px;
 }
-
-.presets{
-    margin-bottom: 25px;
-}
-
 </style>
 </head>
 
@@ -46,94 +57,88 @@ button{
 
 <h1>Brian's Trivia Host</h1>
 
-<div class="presets">
-    <button onclick="setTime(15)">15 Sec</button>
-    <button onclick="setTime(30)">30 Sec</button>
-    <button onclick="setTime(60)">60 Sec</button>
-    <button onclick="setTime(90)">90 Sec</button>
-    <button onclick="setTime(120)">2 Min</button>
+<div class="preset-row">
+    <button onclick="setTimer(15)">15s</button>
+    <button onclick="setTimer(30)">30s</button>
+    <button onclick="setTimer(45)">45s</button>
+    <button onclick="setTimer(60)">60s</button>
+    <button onclick="setTimer(90)">90s</button>
+    <button onclick="setTimer(120)">2 min</button>
 </div>
 
-<div id="timer">1:00</div>
+<div id="timer">60</div>
 
-<div class="controls">
+<div>
     <button onclick="startTimer()">Start</button>
     <button onclick="pauseTimer()">Pause</button>
+</div>
+
+<div>
     <button onclick="resetTimer()">Reset</button>
 </div>
 
 <script>
 
-let time = 60;
-let defaultTime = 60;
+let timer = 60;
+let startingTime = 60;
 let interval = null;
-let paused = true;
 
 function updateDisplay(){
 
-    let minutes = Math.floor(time / 60);
-    let seconds = time % 60;
+    const display = document.getElementById("timer");
 
-    if(seconds < 10){
-        seconds = "0" + seconds;
+    if(timer <= 0){
+        display.innerHTML = "TIME'S UP!";
+        display.className = "danger";
+        return;
     }
 
-    document.getElementById("timer").innerText =
-        minutes + ":" + seconds;
+    display.innerHTML = timer;
+
+    if(timer <= 10){
+        display.className = "danger flash";
+    }
+    else if(timer <= 15){
+        display.className = "warning";
+    }
+    else{
+        display.className = "";
+    }
 }
 
-function setTime(seconds){
-
-    clearInterval(interval);
-
-    paused = true;
-    time = seconds;
-    defaultTime = seconds;
-
+function setTimer(seconds){
+    pauseTimer();
+    timer = seconds;
+    startingTime = seconds;
     updateDisplay();
 }
 
 function startTimer(){
 
-    if(!paused){
-        return;
-    }
-
-    paused = false;
+    if(interval) return;
 
     interval = setInterval(function(){
 
-        time--;
+        timer--;
 
         updateDisplay();
 
-        if(time <= 0){
-
+        if(timer <= 0){
             clearInterval(interval);
-
-            paused = true;
-
-            alert("Time's Up!");
+            interval = null;
         }
 
     },1000);
 }
 
 function pauseTimer(){
-
     clearInterval(interval);
-
-    paused = true;
+    interval = null;
 }
 
 function resetTimer(){
-
-    clearInterval(interval);
-
-    paused = true;
-
-    time = defaultTime;
-
+    pauseTimer();
+    timer = startingTime;
     updateDisplay();
 }
 
