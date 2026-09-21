@@ -1,101 +1,212 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Beauty in the Beach Trivia</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Beauty in the Beach Trivia Night</title>
 
 <style>
+
 body{
-    text-align:center;
     font-family:Arial,sans-serif;
-    padding:20px;
+    text-align:center;
+    margin:0;
+    padding:15px;
+    transition:background-color 0.3s;
 }
 
 h1{
-    margin-bottom:5px;
+    margin:5px 0;
+    font-size:42px;
 }
 
 h2{
-    margin-top:0;
-    margin-bottom:20px;
+    margin:0 0 20px 0;
+    font-size:28px;
+    color:#444;
 }
 
-#timer{
-    font-size:100px;
-    font-weight:bold;
-    margin:30px;
+.preset-row{
+    margin:8px 0;
 }
 
 button{
     font-size:22px;
-    padding:15px;
-    margin:5px;
+    padding:12px 18px;
+    margin:4px;
+    min-width:90px;
+    cursor:pointer;
 }
-</style>
 
+#timer{
+    font-size:120px;
+    font-weight:bold;
+    margin:20px 0;
+}
+
+#message{
+    font-size:42px;
+    font-weight:bold;
+    height:50px;
+    margin:15px 0;
+}
+
+.flash{
+    background:red;
+    color:white;
+}
+
+.warning{
+    background:#ffcc00;
+}
+
+</style>
 </head>
+
 <body>
 
 <h1>Beauty in the Beach</h1>
 <h2>Trivia Night</h2>
 
-<button onclick="startTimer(15)">15s</button>
-<button onclick="startTimer(30)">30s</button>
-<button onclick="startTimer(60)">60s</button>
+<div class="preset-row">
+<button onclick="startPreset(15)">15s</button>
+<button onclick="startPreset(30)">30s</button>
+<button onclick="startPreset(45)">45s</button>
+<button onclick="startPreset(60)">60s</button>
+</div>
 
-<br><br>
+<div class="preset-row">
+<button onclick="startPreset(90)">90s</button>
+<button onclick="startPreset(120)">2m</button>
+<button onclick="startPreset(180)">3m</button>
+<button onclick="startPreset(300)">5m</button>
+</div>
 
-<div id="timer">0:00</div>
+<div id="timer">1:00</div>
 
-<button id="pauseBtn" onclick="pauseTimer()">Pause</button>
+<div id="message"></div>
+
+<div>
+<button id="pauseBtn" onclick="togglePause()">Pause</button>
 <button onclick="resetTimer()">Reset</button>
+</div>
 
 <script>
 
-let t = 0;
-let d = 0;
-let run = null;
+let time = 60;
+let defaultTime = 60;
+let timerInterval = null;
 let paused = false;
 
-function show() {
-   m+":"+String(s).padStart(2,"0");
+function formatTime(seconds){
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return mins + ":" + String(secs).padStart(2,"0");
 }
 
-function startTimer(sec){
-clearInterval(run);
-t=sec;
-d=sec;
-paused=false;
-document.getElementById("pauseBtn").innerHTML="Pause";
-show();
+function updateDisplay(){
 
-run=setInterval(function(){
-if(paused)return;
-t--;
-show();
-
-if(t<=0){
-clearInterval(run);
-document.getElementById("timer").innerHTML="TIME'S UP!";
-}
-},1000);
+    if(time > 0){
+        document.getElementById("timer").innerHTML =
+            formatTime(time);
+    }
 }
 
-function pauseTimer(){
-paused=!paused;
-document.getElementById("pauseBtn").innerHTML=
-paused?"Resume":"Pause";
+function startPreset(seconds){
+
+    clearInterval(timerInterval);
+
+    time = seconds;
+    defaultTime = seconds;
+    paused = false;
+
+    document.body.classList.remove("flash");
+    document.body.classList.remove("warning");
+
+    document.getElementById("pauseBtn").innerHTML =
+        "Pause";
+
+    document.getElementById("message").innerHTML =
+        "";
+
+    updateDisplay();
+
+    timerInterval = setInterval(runTimer,1000);
+}
+
+function runTimer(){
+
+    if(paused) return;
+
+    time--;
+
+    if(time === 15){
+
+        document.body.classList.add("warning");
+
+        document.getElementById("message").innerHTML =
+            "15 SECOND WARNING";
+    }
+
+    if(time <= 10 && time > 0){
+
+        document.body.classList.remove("warning");
+
+        document.getElementById("message").innerHTML =
+            time;
+
+        document.body.classList.toggle("flash");
+    }
+
+    if(time <= 0){
+
+        clearInterval(timerInterval);
+
+        document.body.classList.remove("flash");
+
+        document.getElementById("message").innerHTML =
+            "TIME'S UP!";
+
+        document.getElementById("timer").innerHTML =
+            "0:00";
+
+        return;
+    }
+
+    updateDisplay();
+}
+
+function togglePause(){
+
+    paused = !paused;
+
+    document.getElementById("pauseBtn").innerHTML =
+        paused ? "Resume" : "Pause";
 }
 
 function resetTimer(){
-clearInterval(run);
-t=d;
-paused=false;
-document.getElementById("pauseBtn").innerHTML="Pause";
-show();
+
+    clearInterval(timerInterval);
+
+    paused = false;
+
+    document.body.classList.remove("flash");
+    document.body.classList.remove("warning");
+
+    document.getElementById("pauseBtn").innerHTML =
+        "Pause";
+
+    document.getElementById("message").innerHTML =
+        "";
+
+    time = defaultTime;
+
+    updateDisplay();
 }
 
-show();
+updateDisplay();
+
 </script>
 
 </body>
