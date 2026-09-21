@@ -1,111 +1,78 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
 <title>Brian's Trivia Host</title>
-
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
-
-body{
-    font-family:Arial,sans-serif;
-    text-align:center;
-    margin:0;
-    padding:10px;
-    transition:background-color .3s;
-}
-
-h1{
-    margin:5px;
-    font-size:28px;
-}
-
-#timer{
-    font-size:100px;
-    font-weight:bold;
-    margin:20px 0;
-}
-
-button{
-    font-size:18px;
-    padding:10px 14px;
-    margin:4px;
-    min-width:70px;
-}
-
-#message{
-    font-size:28px;
-    font-weight:bold;
-    height:40px;
-    margin:10px;
-}
-
-.warning{
-    background-color:#ffb347;
-}
-
-.flashRed{
-    background-color:red;
-    color:white;
-}
-
-.flashWhite{
-    background-color:white;
-    color:black;
-}
-
-.timesup{
-    background-color:red;
-    color:white;
-}
-
+body{text-align:center;font-family:Arial;padding:20px}
+#timer{font-size:100px;font-weight:bold;margin:30px}
+button{font-size:22px;padding:15px;margin:5px}
 </style>
 </head>
-
 <body>
 
 <h1>Brian's Trivia Host</h1>
 
-<div>
-<button onclick="startPreset(15)">15s</button>
-<button onclick="startPreset(30)">30s</button>
-<button onclick="startPreset(45)">45s</button>
-<button onclick="startPreset(60)">60s</button>
-</div>
+<button onclick="startTimer(15)">15s</button>
+<button onclick="startTimer(30)">30s</button>
+<button onclick="startTimer(60)">60s</button>
 
-<div>
-<button onclick="startPreset(90)">90s</button>
-<button onclick="startPreset(120)">2m</button>
-<button onclick="startPreset(180)">3m</button>
-<button onclick="startPreset(300)">5m</button>
-</div>
+<br><br>
 
-<div id="timer">1:00</div>
+<div id="timer">0:00</div>
 
-<div id="message"></div>
-
-<div>
-<button id="pauseBtn" onclick="togglePause()">Pause</button>
+<button id="pauseBtn" onclick="pauseTimer()">Pause</button>
 <button onclick="resetTimer()">Reset</button>
-</div>
 
 <script>
-
-let time=60;
-let defaultTime=60;
-let interval=null;
+let t=0;
+let d=0;
+let run=null;
 let paused=false;
-let flashState=false;
 
-function beep(freq,duration){
+function show(){
+let m=Math.floor(t/60);
+let s=t%60;
+document.getElementById("timer").innerHTML=
+m+":"+String(s).padStart(2,"0");
+}
 
-    try{
+function startTimer(sec){
+clearInterval(run);
+t=sec;
+d=sec;
+paused=false;
+document.getElementById("pauseBtn").innerHTML="Pause";
+show();
 
-        const ctx =
-        new(window.AudioContext||window.webkitAudioContext)();
+run=setInterval(function(){
+if(paused)return;
+t--;
+show();
 
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
+if(t<=0){
+clearInterval(run);
+document.getElementById("timer").innerHTML="TIME'S UP!";
+}
+},1000);
+}
 
-        osc
+function pauseTimer(){
+paused=!paused;
+document.getElementById("pauseBtn").innerHTML=
+paused?"Resume":"Pause";
+}
+
+function resetTimer(){
+clearInterval(run);
+t=d;
+paused=false;
+document.getElementById("pauseBtn").innerHTML="Pause";
+show();
+}
+
+show();
+</script>
+
+</body>
+</html>
