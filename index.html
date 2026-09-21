@@ -2,60 +2,41 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>Brian's Trivia Host</title>
 
 <style>
-
 body{
-    font-family: Arial, sans-serif;
-    text-align: center;
-    padding: 20px;
+font-family:Arial,sans-serif;
+text-align:center;
+padding:20px;
 }
 
 h1{
-    margin-bottom: 25px;
-}
-
-.preset-row{
-    margin-bottom: 20px;
-}
-
-button{
-    font-size: 20px;
-    padding: 15px 20px;
-    margin: 6px;
-    min-width: 95px;
+font-size:48px;
 }
 
 #timer{
-    height: 180px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:110px;
-    font-weight:bold;
+font-size:120px;
+font-weight:bold;
+margin:40px 0;
 }
 
-.warning{
-    color:orange;
+button{
+font-size:24px;
+padding:20px;
+margin:8px;
+min-width:120px;
 }
 
-.danger{
-    color:red;
+#message{
+font-size:36px;
+font-weight:bold;
+color:red;
+height:50px;
+margin:20px;
 }
-
-.flash{
-    animation: flash 1s infinite;
-}
-
-@keyframes flash{
-    50%{
-        opacity:0.3;
-    }
-}
-
 </style>
 </head>
 
@@ -63,38 +44,104 @@ button{
 
 <h1>Brian's Trivia Host</h1>
 
-<div class="preset-row">
-    <button onclick="startPreset(15)">15s</button>
-    <button onclick="startPreset(30)">30s</button>
-    <button onclick="startPreset(45)">45s</button>
-    <button onclick="startPreset(60)">60s</button>
+<div>
+<button onclick="startPreset(15)">15s</button>
+<button onclick="startPreset(30)">30s</button>
 </div>
 
-<div class="preset-row">
-    <button onclick="startPreset(90)">90s</button>
-    <button onclick="startPreset(120)">2m</button>
-    <button onclick="startPreset(180)">3m</button>
-    <button onclick="startPreset(300)">5m</button>
+<div>
+<button onclick="startPreset(45)">45s</button>
+<button onclick="startPreset(60)">60s</button>
+</div>
+
+<div>
+<button onclick="startPreset(90)">90s</button>
+<button onclick="startPreset(120)">2m</button>
+</div>
+
+<div>
+<button onclick="startPreset(180)">3m</button>
+<button onclick="startPreset(300)">5m</button>
 </div>
 
 <div id="timer">1:00</div>
 
+<div id="message"></div>
+
 <div>
-    <button id="pauseBtn" onclick="togglePause()">Pause</button>
-    <button onclick="resetTimer()">Reset</button>
+<button id="pauseBtn" onclick="togglePause()">Pause</button>
+<button onclick="resetTimer()">Reset</button>
 </div>
 
 <script>
 
-let time = 60;
-let defaultTime = 60;
-let interval = null;
-let paused = false;
+let time=60;
+let defaultTime=60;
+let interval=null;
+let paused=false;
 
-let beep15Played = false;
-let lastCountdownSecond = 999;
+function formatTime(seconds){
+let m=Math.floor(seconds/60);
+let s=seconds%60;
+return m+":" + String(s).padStart(2,"0");
+}
 
-function beep(freq,duration){
+function updateDisplay(){
+document.getElementById("timer").innerText=formatTime(time);
+}
 
-    const audioContext =
-        new (window.AudioContext || window.webkitAudio
+function startPreset(seconds){
+clearInterval(interval);
+defaultTime=seconds;
+time=seconds;
+paused=false;
+document.getElementById("pauseBtn").innerText="Pause";
+document.getElementById("message").innerText="";
+updateDisplay();
+
+interval=setInterval(function(){
+
+if(paused)return;
+
+time--;
+
+if(time===15){
+document.getElementById("message").innerText="15 SECOND WARNING";
+}
+
+if(time<=10 && time>0){
+document.getElementById("message").innerText=time;
+}
+
+if(time<=0){
+clearInterval(interval);
+document.getElementById("message").innerText="TIME'S UP";
+time=0;
+}
+
+updateDisplay();
+
+},1000);
+}
+
+function togglePause(){
+paused=!paused;
+document.getElementById("pauseBtn").innerText=
+paused ? "Resume" : "Pause";
+}
+
+function resetTimer(){
+clearInterval(interval);
+time=defaultTime;
+paused=false;
+document.getElementById("pauseBtn").innerText="Pause";
+document.getElementById("message").innerText="";
+updateDisplay();
+}
+
+updateDisplay();
+
+</script>
+
+</body>
+</html>
