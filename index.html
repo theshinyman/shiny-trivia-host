@@ -1,17 +1,43 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Shiny Trivia</title>
+<title>Beauty in the Beach Trivia</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
+
 <style>
-body{text-align:center;font-family:Arial;padding:20px}
-#timer{font-size:100px;font-weight:bold;margin:30px}
-button{font-size:22px;padding:15px;margin:5px}
+body{
+    text-align:center;
+    font-family:Arial,sans-serif;
+    padding:20px;
+}
+
+h1{
+    margin-bottom:5px;
+}
+
+h2{
+    margin-top:0;
+    margin-bottom:20px;
+}
+
+#timer{
+    font-size:100px;
+    font-weight:bold;
+    margin:30px;
+}
+
+button{
+    font-size:22px;
+    padding:15px;
+    margin:5px;
+}
 </style>
+
 </head>
 <body>
 
-<h1>Brian's Trivia Host</h1>
+<h1>Beauty in the Beach</h1>
+<h2>Trivia Night</h2>
 
 <button onclick="startTimer(15)">15s</button>
 <button onclick="startTimer(30)">30s</button>
@@ -25,16 +51,14 @@ button{font-size:22px;padding:15px;margin:5px}
 <button onclick="resetTimer()">Reset</button>
 
 <script>
-let t=0;
-let d=0;
-let run=null;
-let paused=false;
 
-function show(){
-let m=Math.floor(t/60);
-let s=t%60;
-document.getElementById("timer").innerHTML=
-m+":"+String(s).padStart(2,"0");
+let t = 0;
+let d = 0;
+let run = null;
+let paused = false;
+
+function show() {
+   m+":"+String(s).padStart(2,"0");
 }
 
 function startTimer(sec){
