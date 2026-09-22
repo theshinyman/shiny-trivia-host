@@ -3,231 +3,52 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Beauty in the Beach Trivia Night</title>
-
+<title>Beauty in the Beach Trivia Night V18</title>
 <style>
-body{
-    font-family: Arial, sans-serif;
-    text-align: center;
-    margin: 0;
-    padding: 10px;
-    background: #A8E6E6;
-    color: #222;
-}
-
-h1{
-    margin: 5px 0;
-    font-size: 30px;
-    white-space: nowrap;
-}
-
-h2{
-    margin: 0 0 15px 0;
-    font-size: 20px;
-    color: #444;
-}
-
-.preset-row{
-    margin: 6px 0;
-}
-
-button{
-    font-size: 18px;
-    padding: 10px 14px;
-    margin: 3px;
-    min-width: 75px;
-    cursor: pointer;
-    border: none;
-    border-radius: 8px;
-    background: white;
-    color: #222;
-}
-
-button:hover{
-    opacity: 0.9;
-}
-
-#timer{
-    font-size: 90px;
-    font-weight: bold;
-    margin: 15px 0;
-    transition: color 0.15s;
-}
-
-#message{
-    font-size: 32px;
-    font-weight: bold;
-    height: 45px;
-    margin: 10px 0;
-}
-
-.timer-warning{
-    color: #FFD700;
-}
-
-.timer-red{
-    color: red;
-}
+body{font-family:Arial,sans-serif;text-align:center;margin:0;padding:15px;background:#4FA9C8;color:white;}
+h1{margin:5px 0;font-size:34px;}
+h2{margin:0 0 15px 0;font-size:24px;}
+button{background:white;color:black;border:3px solid black;border-radius:12px;font-size:24px;font-weight:bold;padding:14px 18px;margin:4px;min-width:95px;}
+#timer{font-size:110px;font-weight:bold;margin:30px 0;color:white;}
+.warning{color:#FFFF00!important;}
+.expired{color:#FF0000!important;}
 </style>
 </head>
-
 <body>
-
 <h1>Beauty in the Beach</h1>
 <h2>Trivia Night</h2>
 
-<div class="preset-row">
-    <button onclick="startPreset(15)">15s</button>
-    <button onclick="startPreset(30)">30s</button>
-    <button onclick="startPreset(45)">45s</button>
-    <button onclick="startPreset(60)">60s</button>
+<div>
+<button onclick="startPreset(15)">15s</button>
+<button onclick="startPreset(30)">30s</button>
+<button onclick="startPreset(45)">45s</button>
 </div>
-
-<div class="preset-row">
-    <button onclick="startPreset(90)">90s</button>
-    <button onclick="startPreset(120)">2m</button>
-    <button onclick="startPreset(180)">3m</button>
-    <button onclick="startPreset(300)">5m</button>
+<div>
+<button onclick="startPreset(60)">60s</button>
+<button onclick="startPreset(90)">90s</button>
+<button onclick="startPreset(120)">2m</button>
 </div>
 
 <div id="timer">1:00</div>
 
-<div id="message"></div>
-
 <div>
-    <button id="pauseBtn" onclick="togglePause()">Pause</button>
-    <button onclick="resetTimer()">Reset</button>
+<button id="pauseBtn" onclick="togglePause()">Pause</button>
+<button onclick="resetTimer()">Reset</button>
 </div>
 
 <script>
-let time = 60;
-let defaultTime = 60;
-let timerInterval = null;
-let paused = false;
-let flashState = false;
-
-function formatTime(seconds){
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return mins + ":" + String(secs).padStart(2,"0");
-}
-
-function beep(freq, duration){
-    try{
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-
-        osc.frequency.value = freq;
-        osc.type = "sine";
-        gain.gain.value = 0.15;
-
-        osc.start();
-
-        setTimeout(() => {
-            osc.stop();
-            ctx.close();
-        }, duration);
-    }catch(err){}
-}
-
-function updateDisplay(){
-    document.getElementById("timer").innerHTML =
-        formatTime(Math.max(time,0));
-}
-
-function startPreset(seconds){
-    clearInterval(timerInterval);
-
-    time = seconds;
-    defaultTime = seconds;
-    paused = false;
-    flashState = false;
-
-    document.getElementById("timer").classList.remove("timer-warning");
-    document.getElementById("timer").classList.remove("timer-red");
-
-    document.getElementById("message").innerHTML = "";
-    document.getElementById("pauseBtn").innerHTML = "Pause";
-
-    updateDisplay();
-
-    timerInterval = setInterval(runTimer,1000);
-}
-
-function runTimer(){
-    if(paused) return;
-
-    time--;
-
-    const timerElement = document.getElementById("timer");
-
-    if(time <= 10 && time >= 1){
-
-        if(time >= 4){
-            beep(800,100);
-        }else{
-            beep(1200,200);
-        }
-
-        document.getElementById("message").innerHTML = time;
-
-        flashState = !flashState;
-
-        if(flashState){
-            timerElement.classList.add("timer-warning");
-        }else{
-            timerElement.classList.remove("timer-warning");
-        }
-    }
-
-    if(time <= 0){
-
-        clearInterval(timerInterval);
-
-        timerElement.classList.remove("timer-warning");
-        timerElement.classList.add("timer-red");
-
-        beep(300,1000);
-
-        document.getElementById("timer").innerHTML = "0:00";
-        document.getElementById("message").innerHTML = "TIME'S UP!";
-
-        return;
-    }
-
-    updateDisplay();
-}
-
-function togglePause(){
-    paused = !paused;
-    document.getElementById("pauseBtn").innerHTML =
-        paused ? "Resume" : "Pause";
-}
-
-function resetTimer(){
-    clearInterval(timerInterval);
-
-    paused = false;
-    flashState = false;
-
-    document.getElementById("timer").classList.remove("timer-warning");
-    document.getElementById("timer").classList.remove("timer-red");
-
-    document.getElementById("message").innerHTML = "";
-    document.getElementById("pauseBtn").innerHTML = "Pause";
-
-    time = defaultTime;
-
-    updateDisplay();
-}
-
+let time=60,defaultTime=60,timerInterval=null,paused=false,audioCtx=null;
+function getAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
+function tone(f,d,v,t="square"){try{const c=getAudio(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=f;o.type=t;g.gain.value=v;o.start();setTimeout(()=>o.stop(),d);}catch(e){}}
+function warningBeep(){tone(1000,120,0.18);}
+function raspyBuzzer(){tone(95,1200,0.55,"sawtooth");}
+function formatTime(s){return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");}
+function updateDisplay(){const t=document.getElementById("timer");t.textContent=formatTime(Math.max(time,0));if(time<=10&&time>=1)t.classList.add("warning");else if(time>10)t.classList.remove("warning");}
+function startPreset(s){clearInterval(timerInterval);time=defaultTime=s;paused=false;const t=document.getElementById("timer");t.classList.remove("warning","expired");document.getElementById("pauseBtn").textContent="Pause";updateDisplay();timerInterval=setInterval(runTimer,1000);}
+function runTimer(){if(paused)return;time--;if(time<=10&&time>=1)warningBeep();if(time<=0){clearInterval(timerInterval);const t=document.getElementById("timer");t.classList.remove("warning");t.classList.add("expired");t.textContent="0:00";raspyBuzzer();return;}updateDisplay();}
+function togglePause(){paused=!paused;document.getElementById("pauseBtn").textContent=paused?"Resume":"Pause";}
+function resetTimer(){clearInterval(timerInterval);paused=false;time=defaultTime;document.getElementById("timer").classList.remove("warning","expired");updateDisplay();}
 updateDisplay();
 </script>
-
 </body>
 </html>
